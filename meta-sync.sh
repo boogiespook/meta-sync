@@ -98,7 +98,14 @@ artifact="repositories"
 
 }
 
+function get_template_list {
+set -x
+$(${stem} template list)
+set +x
+}
+
 check_hammer_config_file
+get_template_list
 exportProducts
 
 
