@@ -16,7 +16,8 @@
 ###############################
 stem="hammer --csv "
 append=""
-org=" --organization-label chrisj "
+org_label=$(hammer organization list | grep ^[0-9] | awk -F '|' '{print $3}' | tr -d " \t\n\r")
+org=$" --organization-label ${org_label}"
 
 ###############
 ## Functions ##
@@ -87,7 +88,7 @@ EOF
 ## and get Organization
 
 function exportProducts {
-artifact="products"
+artifact="product"
 append=" --enabled true"
 echo " - Exporting $artifacts details to $artifact.csv"
 $stem $artifact list $org $append | grep -v "^ID" > $artifact.csv
@@ -100,9 +101,8 @@ $stem $artifact list --product-id=$prodId $org $append
 }
 
 function get_template_list {
-set -x
-$(${stem} template list)
-set +x
+command="${stem} template list"
+$(command)
 }
 
 check_hammer_config_file
@@ -120,7 +120,6 @@ do
 	echo " - Exporting repositories for $name"
 	exportRepositories $id > reposForId_$id.csv
 done < product.csv
-
 
 
 
