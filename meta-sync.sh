@@ -126,7 +126,7 @@ hammer --csv hostgroup list --per-page 10000  > hostgroup_summary.csv
 
 function write_hostgroup_info {
 set -x
-for hgig in $(hammer --csv hostgroup list --per-page 10000 | grep ^[0-9] )
+for hgig in $(hammer --csv hostgroup list --per-page 10000 | grep ^[0-9] | awk -F, '{print $1}')
 do
     hammer --csv hostgroup info --id=${hgig} > hostgroup_info_${hgig}.csv
 done
