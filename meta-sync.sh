@@ -99,12 +99,8 @@ prodId=$1
 $stem $artifact list --product-id=$prodId $org $append
 }
 
-<<<<<<< HEAD
-#exportProducts
-=======
 check_hammer_config_file
 exportProducts
->>>>>>> b817f36f622d39a49c16522a0a166f900c99f310
 
 
 ## Check a products.csv was create and b0rk if not
