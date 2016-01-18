@@ -20,9 +20,7 @@ org_label=$(hammer organization list | grep ^[0-9] | awk -F '|' '{print $3}' | t
 org=$" --organization-label ${org_label}"
 
 function write_products_manifest {
-set -x
     ${stem} product list --organization-id=1 --enabled true | grep ^[0-9] | awk -F',' '{print $1}' > products.csv
-set +x
 }
 
 ###############
@@ -94,22 +92,56 @@ EOF
 ## and get Organization
 
 function exportRepositories {
-set -x
 artifact="repository"
 prodId=$1
 $stem $artifact list --product-id=$prodId $org $append | grep ^[0-9]
-set +x
 }
 
+function writeLifecycles {
+hammer --csv lifecycle-environment list $org > lifecycles.csv
+}
+
+function writeContentViews {
+hammer --csv content-view list $org > cv.csv
+}
 function get_template_list {
 command="${stem} template list"
 $(command)
 }
 
+function write_activation_key_summary {
+hammer --csv activation-key list ${org} > activation_key_summary.csv
+}
+
+function write_activation_key_detail {
+for key in $(hammer --csv activation-key list ${org} | grep ^[0-9] | awk -F, '{print $1}')
+do
+	hammer --csv activation-key info --id=${key} > activation-key-info-${key}.csv
+done
+}
+
+function write_hostgroup_summary {
+hammer --csv hostgroup list --per-page 10000  > hostgroup_summary.csv
+}
+
+function write_hostgroup_info {
+set -x
+for hgig in $(hammer --csv hostgroup list --per-page 10000 | grep ^[0-9] )
+do
+    hammer --csv hostgroup info --id=${hgig} > hostgroup_info_${hgig}.csv
+done
+set +x
+}
+
 check_hammer_config_file
 write_products_manifest
 get_template_list
-
+writeLifecycles
+writeContentViews
+write_activation_key_summary
+write_activation_key_detail
+write_hostgroup_summary 
+write_hostgroup_info 
 
 ## Check a products.csv was create and b0rk if not
 
