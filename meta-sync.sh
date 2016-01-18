@@ -53,22 +53,22 @@ $stem $artifact list $org $append | grep -v "^ID" > $artifact.csv
 }
 
 function exportRepositories {
-artifact="repositories"
-
+artifact="repository"
+prodId=$1
+$stem $artifact list --product-id=$prodId $org $append
 }
 
-exportProducts
+#exportProducts
 
 ## Check a products.csv was create and b0rk if not
 
+## For each of the products, list the repositories and write to reposForId_$id.csv
 while read line
 do
-id=$(echo $line | awk -F, '{print $1}' )
-name=$(echo $line | awk -F, '{print $2}' )
-echo " - Exporting repositories for $name"
-#exportRepositories
-
-
+	id=$(echo $line | awk -F, '{print $1}' )
+	name=$(echo $line | awk -F, '{print $2}' )
+	echo " - Exporting repositories for $name"
+	exportRepositories $id > reposForId_$id.csv
 done < product.csv
 
 
