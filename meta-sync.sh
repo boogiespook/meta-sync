@@ -19,6 +19,12 @@ append=""
 org_label=$(hammer organization list | grep ^[0-9] | awk -F '|' '{print $3}' | tr -d " \t\n\r")
 org=$" --organization-label ${org_label}"
 
+function write_products_manifest {
+set -x
+    ${stem} product list --organization-id=1 --enabled true | grep ^[0-9] | awk -F',' '{print $1}' > products.csv
+set +x
+}
+
 ###############
 ## Functions ##
 ###############
@@ -87,17 +93,12 @@ EOF
 ## Check /root/.hammer/cli_config.yml
 ## and get Organization
 
-function exportProducts {
-artifact="product"
-append=" --enabled true"
-echo " - Exporting $artifacts details to $artifact.csv"
-$stem $artifact list $org $append | grep -v "^ID" > $artifact.csv
-}
-
 function exportRepositories {
+set -x
 artifact="repository"
 prodId=$1
-$stem $artifact list --product-id=$prodId $org $append
+$stem $artifact list --product-id=$prodId $org $append | grep ^[0-9]
+set +x
 }
 
 function get_template_list {
@@ -106,8 +107,8 @@ $(command)
 }
 
 check_hammer_config_file
+write_products_manifest
 get_template_list
-exportProducts
 
 
 ## Check a products.csv was create and b0rk if not
@@ -119,7 +120,6 @@ do
 	name=$(echo $line | awk -F, '{print $2}' )
 	echo " - Exporting repositories for $name"
 	exportRepositories $id > reposForId_$id.csv
-done < product.csv
-
+done < products.csv
 
 
