@@ -42,6 +42,47 @@ function remedialAction {
   echo -e "$1" | tee -a $TMPDIR/remedialAction
 }
 
+function check_hammer_config_file {
+    if [[ ! -f /root/.hammer/cli_config.yml ]]
+    then
+        echo -e "A hammer config file has not been created.  This is used to interogate foreman.
+    Please do the following:
+    mkdir ~/.hammer
+    chmod 600 ~/.hammer
+    echo << EOF >> /root/.hammer/cli_config.yml
+      :foreman:
+           :host: 'https://$(hostname -f)'
+           :username: 'admin'
+           :password: 'password'
+
+    EOF"
+        echo -n "Would you like me to create this file ? [y|n] :"
+        read yesno
+        if [ ${yesno} == 'y' ]
+        then
+            echo -n "Please enter your admin username : "
+            read username
+            echo -n "Please enter your admin password : "
+            read password
+
+            mkdir ~/.hammer
+            chmod 600 ~/.hammer
+cat << EOF > /root/.hammer/cli_config.yml
+:foreman:
+     :host: 'https://$(hostname -f)'
+     :username: '${username}'
+     :password: '${password}'
+
+EOF
+            echo "/root/.hammer/cli_config.yml has been created"
+            else
+                exit 2
+            fi
+
+    fi
+
+}
+
 ## Check /root/.hammer/cli_config.yml
 ## and get Organization
 
@@ -58,7 +99,13 @@ prodId=$1
 $stem $artifact list --product-id=$prodId $org $append
 }
 
+<<<<<<< HEAD
 #exportProducts
+=======
+check_hammer_config_file
+exportProducts
+>>>>>>> b817f36f622d39a49c16522a0a166f900c99f310
+
 
 ## Check a products.csv was create and b0rk if not
 
