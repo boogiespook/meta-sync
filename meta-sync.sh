@@ -7,7 +7,7 @@
 ###############################
 ## Script to sync artifacts
 ##
-## ToDo: test
+## ToDo:
 ##
 ###############################
 
@@ -125,12 +125,105 @@ hammer --csv hostgroup list --per-page 10000  > hostgroup_summary.csv
 }
 
 function write_hostgroup_info {
-set -x
 for hgig in $(hammer --csv hostgroup list --per-page 10000 | grep ^[0-9] | awk -F, '{print $1}')
 do
     hammer --csv hostgroup info --id=${hgig} > hostgroup_info_${hgig}.csv
 done
-set +x
+}
+
+function write_gpgkeys {
+hammer --csv gpg list $org > gpgkeys.csv
+}
+
+function write_gpgkey_info {
+for gpgkeys in $(hammer --csv gpg list $org --per-page 10000 | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv gpg info ${org} --id=${gpgkey} > gpgkey_${gpgkey}.csv
+done
+}
+
+function write_locations {
+hammer --csv location list  > locations.csv
+}
+
+function write_location_info {
+for location_id in $(hammer --csv location list --per-page 10000 | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv location info --id=${location_id} > location_${location_id}.csv
+done
+}
+
+function write_sync_plans {
+hammer --csv sync-plan list ${org} > sync-plan-summary.csv
+}
+
+function write_sync_plan_info {
+for syncpanid in $(hammer --csv sync-plan list ${org}  | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv sync-plan info ${org} --id=${syncpanid} > sync_plan_${syncpanid}.csv
+done
+}
+
+function write_os_list {
+hammer --csv os list > os-summary.csv
+}
+
+function write_os_info {
+for os in $(hammer --csv os list | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv os info --id=${os} > os_info_${os}.csv
+done
+}
+
+function write_domain_list {
+hammer --csv domain list > domain-summary.csv
+}
+
+function write_domain_info {
+for domain in $(hammer --csv domain list | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv domain info --id=${domain} > domain_info_${domain}.csv
+done
+}
+
+function write_subnet_list {
+hammer --csv subnet list > subnet-summary.csv
+}
+
+function write_subnet_info {
+for subnet in $(hammer --csv subnet list | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv subnet info --id=${subnet} > subnet_info_${subnet}.csv
+done
+}
+
+function write_hostcollection_plans {
+hammer --csv host-collection list ${org} > host-collection-summary.csv
+}
+
+function write_hostcollection_plan_info {
+for hostcollectionid in $(hammer --csv host-collection  list ${org}  | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv host-collection info ${org} --id=${hostcollectionid} > host-collection_${hostcollectionid}.csv
+done
+}
+
+function write_templates_summary {
+hammer --csv template list > templates-summary.csv
+}
+
+function write_template_info {
+for template in $(hammer --csv template list | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv template info --id=${template} > template_info_${template}.csv
+done
+}
+
+function write_template_template {
+for template in $(hammer --csv template list | grep ^[0-9] | awk -F, '{print $1}')
+do
+    hammer --csv template dump --id=${template} > template_dump_${template}.csv
+done
 }
 
 check_hammer_config_file
@@ -142,6 +235,21 @@ write_activation_key_summary
 write_activation_key_detail
 write_hostgroup_summary 
 write_hostgroup_info 
+write_gpgkeys
+write_gpgkey_info
+write_sync_plans
+write_sync_plan_info
+write_os_list
+write_os_info
+write_domain_list
+write_domain_info
+write_subnet_list
+write_subnet_info
+write_hostcollection_plans
+write_hostcollection_plan_info
+write_templates_summary
+write_template_info
+write_template_template
 
 ## Check a products.csv was create and b0rk if not
 
