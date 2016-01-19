@@ -19,11 +19,29 @@ append=""
 org_label=$(hammer organization list | grep ^[0-9] | awk -F '|' '{print $3}' | tr -d " \t\n\r")
 org=$" --organization-label ${org_label}"
 
-function blank_script {
-echo "#!/usr/bin/bash" > populate.sh
+function write_upload_manifest {
+cat << EOF >> $output_script
+manifest_file="/root/manifest.zip"
+if [ ! -f $manifest_file ]
+then
+    printError "Unable to find manifest $manifest_file, please make sure it exists."
+    exit 1
+else
+    printOK "Manifest file $manifest_file found, attempting upload."
+    hammer subscription upload ${org} --file $manifest_file
+    if [ $? -eq 0]
+    then
+        printOK "Upload successful"
+    else
+        printError "Unable to uplad manifest $manifest_file"
+	exit 1
+    fi
+fi
+EOF
 }
+
 function write_products_manifest {
-    ${stem} product list ${org} --enabled true | grep ^[0-9] | awk -F',' '{print $1}' > products.csv
+    ${stem} product list ${org} --enabled true | grep ^[0-9] > products.csv
 }
 
 ###############
@@ -57,7 +75,7 @@ function check_hammer_config_file {
     Please do the following:
     mkdir ~/.hammer
     chmod 600 ~/.hammer
-    echo << EOF >> /root/.hammer/cli_config.yml
+    cat << EOF > /root/.hammer/cli_config.yml
       :foreman:
            :host: 'https://$(hostname -f)'
            :username: 'admin'
@@ -235,7 +253,6 @@ do
 done
 }
 
-blank_script
 printOK "Blank script"
 check_hammer_config_file
 printOK "hammer config file"
@@ -285,7 +302,6 @@ write_template_info
 printOK "template info"
 write_template_template
 printOK "template dump"
-
 ## Check a products.csv was create and b0rk if not
 
 ## For each of the products, list the repositories and write to reposForId_$id.csv
@@ -296,4 +312,4 @@ do
 	exportRepositories $id > reposForId_$id.csv
 done < products.csv
 
-
+## Start of script creation
