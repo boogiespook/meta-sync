@@ -253,6 +253,18 @@ do
 done
 }
 
+function write_architectures_detail {
+for architecture in $(${stem} architecture list | grep ^[0-9] | awk -F, '{print $1}')
+do
+    ${stem} architecture info --id=${architecture} > architecture_${architecture}.csv
+done
+}
+
+function write_architectures {
+    ${stem} architecture list  > architectures.csv
+}
+
+
 printOK "Blank script"
 check_hammer_config_file
 printOK "hammer config file"
@@ -302,6 +314,10 @@ write_template_info
 printOK "template info"
 write_template_template
 printOK "template dump"
+write_architectures
+printOK "architectures"
+write_architectures_detail
+printOK "architecture detail"
 ## Check a products.csv was create and b0rk if not
 
 ## For each of the products, list the repositories and write to reposForId_$id.csv

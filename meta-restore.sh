@@ -107,6 +107,10 @@ fi
 EOF
 }
 
+function restore_templates {
+templates=$( 
+}
+
 ## Main
 check_hammer_config_file
 write_upload_manifest
